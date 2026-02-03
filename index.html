@@ -5,18 +5,73 @@
   <title>Vue Shopping List</title>
   <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
   <style>
-    body { font-family: Arial, sans-serif; background: #f3f3f3; padding: 2rem; }
-    .app { max-width: 520px; margin: auto; background: white; padding: 1.5rem; border-radius: 8px; }
-    .input-row { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem; }
-    .input-row input[type="text"] { flex: 1; padding: 0.5rem; }
-    .btn-add { background: #ccc; color: black; border: none; padding: 0.5rem 1rem; }
-    .btn-save { background: #007bff; color: white; border: none; padding: 0.5rem 1rem; }
-    .btn-cancel { background: #dc3545; color: white; border: none; padding: 0.5rem 1rem; }
-    ul { list-style: none; padding: 0; }
-    li { cursor: pointer; padding: 0.4rem 0; }
-    .strikeout { text-decoration: line-through; color: gray; font-weight: normal !important; }
-    .priority { color: orange; font-weight: normal; }
+    body {
+      font-family: Arial, sans-serif;
+      background: #f3f3f3;
+      padding: 2rem;
+    }
+    .app {
+      max-width: 520px;
+      margin: auto;
+      background: white;
+      padding: 1.5rem;
+      border-radius: 8px;
+      text-align: left; /* keep default alignment for other elements */
+    }
+    .input-row {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+    .input-row input[type="text"] {
+      flex: 1;
+      padding: 0.5rem;
+    }
+    .btn-add {
+      background: #ccc;
+      color: black;
+      border: none;
+      padding: 0.5rem 1rem;
+      margin-bottom: 20px; /* space between button and message */
+    }
+    .btn-save {
+      background: #007bff;
+      color: white;
+      border: none;
+      padding: 0.5rem 1rem;
+    }
+    .btn-cancel {
+      background: #dc3545;
+      color: white;
+      border: none;
+      padding: 0.5rem 1rem;
+    }
+    ul {
+      list-style: none;
+      padding: 0;
+    }
+    li {
+      cursor: pointer;
+      padding: 0.4rem 0;
+    }
+    .strikeout {
+      text-decoration: line-through;
+      color: gray;
+      font-weight: normal !important;
+    }
+    .priority {
+      color: orange;
+      font-weight: normal;
+    }
     .static-class {}
+    .success-message {
+      text-align: center;
+      margin-bottom: 20px;
+      font-size: 1.2rem;
+      font-weight: bold;
+      color: green;
+    }
   </style>
 </head>
 
@@ -30,21 +85,20 @@
     <!-- Input Row -->
     <div v-if="formVisible" class="input-row">
       <input type="text" v-model="newItem" placeholder="Add an item" @keyup.enter="saveItem" />
-
       <button class="btn-save" @click="saveItem" :disabled="newItem.trim() === ''">Save Item</button>
-
       <button class="btn-cancel" @click="cancelEdit">Cancel</button>
-
       <label>
         <input type="checkbox" v-model="highPriority"> High Priority
       </label>
     </div>
 
-    <!-- Success message -->
-    <p v-if="items.length > 0 && allPurchased">Nice job! You've bought all your items!</p>
+    <!-- Success message centered -->
+    <p v-if="items.length === 0 && showSuccessMessage" class="success-message">
+      Nice job! You've bought all your items!
+    </p>
 
     <!-- List -->
-    <ul>
+    <ul v-if="items.length > 0">
       <li
         v-for="item in reversedItems"
         :key="item.id"
@@ -64,13 +118,13 @@
           newItem: '',
           highPriority: false,
           formVisible: false,
-          items: []
+          items: [],
+          showSuccessMessage: false
         }
       },
 
       computed: {
-        reversedItems() { return [...this.items].reverse() },
-        allPurchased() { return this.items.length > 0 && this.items.every(i => i.purchased) }
+        reversedItems() { return [...this.items].reverse() }
       },
 
       methods: {
@@ -90,24 +144,30 @@
 
           this.newItem = ''
           this.highPriority = false
+          this.showSuccessMessage = false
         },
 
         cancelEdit() {
-          // Show confirmation popup
           if (this.items.length > 0 || this.newItem.trim() !== '') {
             const confirmed = window.confirm("Are you sure you want to cancel? This will clear all items.")
             if (!confirmed) return
           }
 
-          // Clear everything
           this.newItem = ''
           this.highPriority = false
           this.items = []
           this.formVisible = false
+          this.showSuccessMessage = true
         },
 
         togglePurchased(item) {
           item.purchased = !item.purchased
+
+          // if all purchased, show success message but keep input visible
+          if (this.items.length > 0 && this.items.every(i => i.purchased)) {
+            this.items = []
+            this.showSuccessMessage = true
+          }
         }
       }
     }).mount('#app')
