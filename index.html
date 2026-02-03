@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Vue Shopping List</title>
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f3f3f3; padding: 2rem; }
+    .app { max-width: 520px; margin: auto; background: white; padding: 1.5rem; border-radius: 8px; }
+    .input-row { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem; }
+    .input-row input[type="text"] { flex: 1; padding: 0.5rem; }
+    .btn-add { background: #ccc; color: black; border: none; padding: 0.5rem 1rem; }
+    .btn-save { background: #007bff; color: white; border: none; padding: 0.5rem 1rem; }
+    .btn-cancel { background: #dc3545; color: white; border: none; padding: 0.5rem 1rem; }
+    ul { list-style: none; padding: 0; }
+    li { cursor: pointer; padding: 0.4rem 0; }
+    .strikeout { text-decoration: line-through; color: gray; font-weight: normal !important; }
+    .priority { color: orange; font-weight: normal; }
+    .static-class {}
+  </style>
+</head>
+
+<body>
+  <div id="app" class="app">
+    <h2>Shopping List</h2>
+
+    <!-- Add Item Button -->
+    <button v-if="!formVisible" class="btn-add" @click="showForm">Add Item</button>
+
+    <!-- Input Row -->
+    <div v-if="formVisible" class="input-row">
+      <input type="text" v-model="newItem" placeholder="Add an item" @keyup.enter="saveItem" />
+
+      <button class="btn-save" @click="saveItem" :disabled="newItem.trim() === ''">Save Item</button>
+
+      <button class="btn-cancel" @click="cancelEdit">Cancel</button>
+
+      <label>
+        <input type="checkbox" v-model="highPriority"> High Priority
+      </label>
+    </div>
+
+    <!-- Success message -->
+    <p v-if="items.length > 0 && allPurchased">Nice job! You've bought all your items!</p>
+
+    <!-- List -->
+    <ul>
+      <li
+        v-for="item in reversedItems"
+        :key="item.id"
+        @click="togglePurchased(item)"
+        class="static-class"
+        :class="{ strikeout: item.purchased, priority: item.highPriority && !item.purchased }"
+      >
+        {{ item.label }}
+      </li>
+    </ul>
+  </div>
+
+  <script>
+    Vue.createApp({
+      data() {
+        return {
+          newItem: '',
+          highPriority: false,
+          formVisible: false,
+          items: []
+        }
+      },
+
+      computed: {
+        reversedItems() { return [...this.items].reverse() },
+        allPurchased() { return this.items.length > 0 && this.items.every(i => i.purchased) }
+      },
+
+      methods: {
+        showForm() {
+          this.formVisible = true
+        },
+
+        saveItem() {
+          if (this.newItem.trim() === '') return
+
+          this.items.push({
+            id: Date.now(),
+            label: this.newItem,
+            purchased: false,
+            highPriority: this.highPriority
+          })
+
+          this.newItem = ''
+          this.highPriority = false
+        },
+
+        cancelEdit() {
+          // Show confirmation popup
+          if (this.items.length > 0 || this.newItem.trim() !== '') {
+            const confirmed = window.confirm("Are you sure you want to cancel? This will clear all items.")
+            if (!confirmed) return
+          }
+
+          // Clear everything
+          this.newItem = ''
+          this.highPriority = false
+          this.items = []
+          this.formVisible = false
+        },
+
+        togglePurchased(item) {
+          item.purchased = !item.purchased
+        }
+      }
+    }).mount('#app')
+  </script>
+</body>
+</html>
