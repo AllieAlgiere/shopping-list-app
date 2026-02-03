@@ -9,7 +9,7 @@ The application allows users to add items to a shopping list, mark them as purch
 
 ## Live Demo
 
-[GitHub Pages Link](https://<yourusername>.github.io)
+[GitHub Pages Link](https://alliealgiere.github.io/shopping-list-app/)
 
 ---
 
