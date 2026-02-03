@@ -61,9 +61,3 @@ The application allows users to add items to a shopping list, mark them as purch
 4. Press **Enter** or click **Save Item** to add.
 5. Click a list item to mark it purchased.
 6. Click **Cancel** to clear all items (confirmation required).
-
----
-
-## GitHub Repository
-
-[GitHub Repo Link](https://github.com/<yourusername>/<repo-name>)
